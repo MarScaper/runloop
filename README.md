@@ -6,25 +6,32 @@ Arduino parallelization library.
 
 ## Synopsis
 
-TBD
-
+A 100% C ++ library for parallelization with an Arduino...
 ![Alt text](/RunLoopClassHierarchy.jpg?raw=true "Optional Title")
 
 
 ## Features
-TBD
+- RunLoop objects with hierarchy, idle state, etc.
+- Software timers.
+- Hardware timers: Timer0, Timer1, Timer2, Timer3, Timer4, Timer5 (3,4,5 only availables with Arduino Mega).
+- Software and hardware timers fully interchangeable.
+- Full C++ approach with delegation paradigm for asynchronous callbacks.
+- C compatiility with enhanced C function callbacks.
 
 ## Limitations
 
-TBD
+- PWM not implemented yet with hardware timers.
 
 ## Code Example
 
-TBD
+See sample code directory: https://github.com/MarScaper/runloop/tree/master/examples
 
 ## Motivation
 
 This library is part of a personnal project to improve my EM10 Takahashi mount thanks to Arduino.
+
+Click on this video to see buzzer, led, IR remote and lcd working together with the library...
+[![Alt text for your video](https://img.youtube.com/vi/p8aKuSLS8uE/0.jpg)](https://www.youtube.com/watch?v=p8aKuSLS8uE)
 
 ## License
 
