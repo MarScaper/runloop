@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring Map For Ephemeris
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+RunLoop	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+RunLoopObject                                    KEYWORD2
+RunLoopTimer                                     KEYWORD2
+RunLoopHardwareTimer                             KEYWORD2
+RunLoopHardwareTimer0                            KEYWORD2
+RunLoopHardwareTimer1                            KEYWORD2
+RunLoopHardwareTimer2                            KEYWORD2
+RunLoopHardwareTimer3                            KEYWORD2
+RunLoopHardwareTimer4                            KEYWORD2
+RunLoopHardwareTimer5                            KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+RunLoop
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+
