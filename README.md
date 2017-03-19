@@ -31,7 +31,7 @@ See sample code directory: https://github.com/MarScaper/runloop/tree/master/exam
 This library is part of a personnal project to improve my EM10 Takahashi mount thanks to Arduino.
 
 Click on this video to see buzzer, led, IR remote and lcd working together with the library...
-[![Alt text for your video](https://img.youtube.com/vi/p8aKuSLS8uE/0.jpg)](https://www.youtube.com/watch?v=p8aKuSLS8uE)
+[![Alt text for your video](https://img.youtube.com/vi/p8aKuSLS8uE/3.jpg)](https://www.youtube.com/watch?v=p8aKuSLS8uE)
 
 ## License
 
