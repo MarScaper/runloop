@@ -27,6 +27,35 @@ A 100% C ++ library for parallelization with an Arduino...
 
 See sample code directory: https://github.com/MarScaper/runloop/tree/master/examples
 
+Software timer with callback:
+```
+../..
+RunLoopTimer *timer = new RunLoopTimer();
+timer->attachInterrupt(fire);
+timer->setDelay(1000);
+this->addToRunLoop(timer);
+../..
+```
+
+Timer0 (Hardware Timer) with delegate:
+```
+../..
+RunLoopTimer *timer = new RunLoopHardwareTimer0();
+timer->setTimerDelegate(this);
+timer->setDelay(1000);
+this->addToRunLoop(timer);
+../..
+```
+
+Pin 2 Interrupt with delegate:
+```
+../..
+RunLoopInterrupt *interruptPin2 = new RunLoopInterruptPin2(INPUT_PULLUP,RISING);
+interruptPin2->setInterruptDelegate(this);
+this->addToRunLoop(interruptPin2);
+../..
+```
+
 ## Motivation
 
 This library is part of a personnal project to improve my EM10 Takahashi mount thanks to Arduino.
