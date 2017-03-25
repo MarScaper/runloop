@@ -40,7 +40,7 @@
 #define TCNT  TCNT4
 #define TIMSK TIMSK4
 
-// Singleton to acces instance in ISR
+//  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
 
 ISR(TIMER4_OVF_vect)

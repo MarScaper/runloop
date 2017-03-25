@@ -25,12 +25,10 @@
 
 RunLoopTimer::RunLoopTimer()
 {
-  _timerDelegate = NULL;
 }
 
 RunLoopTimer::~RunLoopTimer()
 {
-  _timerDelegate = NULL;
 }
 
 void RunLoopTimer::setDelay(unsigned long delay)

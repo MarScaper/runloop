@@ -15,7 +15,8 @@ A 100% C ++ library for parallelization with an Arduino...
 - Software timers.
 - Hardware timers: Timer0, Timer1, Timer2, Timer3, Timer4, Timer5 (3,4,5 only availables with Arduino Mega).
 - Software and hardware timers fully interchangeable.
-- Full C++ approach with delegation paradigm for asynchronous callbacks.
+- Hardware interrupts (pins supported according to your arduino board).
+- Full C++ approach with inheritance or delegation paradigm for asynchronous callbacks with timers and interrupts.
 - C compatiility with enhanced C function callbacks.
 
 ## Limitations

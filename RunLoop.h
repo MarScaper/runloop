@@ -22,17 +22,40 @@
 #define RunLoop_library
 
 #include <RunLoopObject.hpp>
+
+// Timers
 #include <RunLoopTimer.hpp>
 #include <RunLoopHardwareTimer0.hpp>
 #include <RunLoopHardwareTimer1.hpp>
 #include <RunLoopHardwareTimer2.hpp>
-
-// Timers only availables with Arduino Mega
-#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) // Timers only availables with Arduino Mega
 #include <RunLoopHardwareTimer3.hpp>
 #include <RunLoopHardwareTimer4.hpp>
 #include <RunLoopHardwareTimer5.hpp>
 #endif
+
+// Interrupts
+#include <RunLoopInterrupt.hpp>
+#include <RunLoopInterruptPin0.hpp>
+#include <RunLoopInterruptPin1.hpp>
+#include <RunLoopInterruptPin2.hpp>
+#include <RunLoopInterruptPin3.hpp>
+#include <RunLoopInterruptPin4.hpp>
+#include <RunLoopInterruptPin5.hpp>
+#include <RunLoopInterruptPin6.hpp>
+#include <RunLoopInterruptPin7.hpp>
+#include <RunLoopInterruptPin8.hpp>
+#include <RunLoopInterruptPin9.hpp>
+#include <RunLoopInterruptPin10.hpp>
+#include <RunLoopInterruptPin11.hpp>
+#include <RunLoopInterruptPin12.hpp>
+#include <RunLoopInterruptPin13.hpp>
+#include <RunLoopInterruptPinA0.hpp>
+#include <RunLoopInterruptPinA1.hpp>
+#include <RunLoopInterruptPinA2.hpp>
+#include <RunLoopInterruptPinA3.hpp>
+#include <RunLoopInterruptPinA4.hpp>
+#include <RunLoopInterruptPinA5.hpp>
 
 #endif
 

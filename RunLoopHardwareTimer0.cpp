@@ -33,7 +33,7 @@
 #define TIMSK TIMSK0
 #define OCRA  OCR0A
 
-// Singleton to acces instance in ISR
+//  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
 
 // Interrupt is called once a millisecond,
