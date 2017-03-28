@@ -76,7 +76,7 @@ protected:
   /*! Idle state. By default an object always start automatically. */
   bool _isIdle = false;
 
-  /*! */
+  /*! Go back in the hierarchy of ancestors to check that none is idle. */
   bool areAncestorsIdle();
   
 private:
