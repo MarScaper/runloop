@@ -155,8 +155,8 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
 
 void RunLoopHardwareTimer::hardwareLoop()
 {
-  // Take care to ancestor state if exists cause we do not deal with "official run loop"
-  if( !this->ancestor() || !this->ancestor()->isIdle() )
+  // Take care to ancestors state if exist cause we do not deal with "official run loop"
+  if( !this->areAncestorsIdle() )
   {
     // Get delegate if exists
     RunLoopTimerDelegate *timerDelegate = this->timerDelegate();

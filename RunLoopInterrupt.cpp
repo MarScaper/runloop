@@ -65,8 +65,8 @@ void RunLoopInterrupt::detachInterrupt()
 
 void RunLoopInterrupt::hardwareLoop()
 {
-  // Take care to ancestor state if exists cause we do not deal with "official run loop"
-  if( !this->ancestor() || !this->ancestor()->isIdle() )
+  // Take care to ancestors state if exist cause we do not deal with "official run loop"
+  if( !this->areAncestorsIdle() )
   {
     //
     // Fire according to callback, delegate, or inheritance

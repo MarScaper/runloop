@@ -75,6 +75,9 @@ protected:
   
   /*! Idle state. By default an object always start automatically. */
   bool _isIdle = false;
+
+  /*! */
+  bool areAncestorsIdle();
   
 private:
   

@@ -161,3 +161,26 @@ void RunLoopObject::setAncestor(RunLoopObject *ancestor)
 {
   _ancestor = ancestor;
 }
+
+bool RunLoopObject::areAncestorsIdle()
+{
+  bool idle = false;
+  
+  if( this->ancestor() )
+  {
+    RunLoopObject *ancestor = this->ancestor();
+    while( ancestor )
+    {
+      if( ancestor->isIdle() )
+      {
+        idle = true;
+        break;
+      }
+    
+      // Next ancestor
+      ancestor =  ancestor->ancestor();
+    } 
+  }
+
+  return idle;
+}
