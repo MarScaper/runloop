@@ -81,7 +81,7 @@ public:
 #if RUN_LOOP_FULL || RUN_LOOP_INHERITANCE
   /*! Method executed each time delay is elapsed. User should 
    *  overwrite this method when subclassing RunLoopTimer. */
-  virtual void fire() = 0;
+  virtual void fire() {};
 #endif
 
   /*! Set the timer delay in milliseconds. */
