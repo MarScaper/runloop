@@ -36,6 +36,7 @@
 #define TCCRB TCCR2B
 #define TCNT  TCNT2
 #define TIMSK TIMSK2
+#define INTERRUPT_COST 3.0816326531
 
 //  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
@@ -73,15 +74,15 @@ void RunLoopHardwareTimer2::setDelay(unsigned long delay)
 void RunLoopHardwareTimer2::setMicroDelay(unsigned long delay)
 {
   _microDelay = delay;
-  
+
   // Calculate prescale, clock select bits and counter reset according to delay and timer resolution
   _timer.outOfBounds = 0;
   unsigned short prescale;
-  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale) )
+  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale,INTERRUPT_COST) )
   {
     _timer.outOfBounds=1000;
     delay /= 1000;
-    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale);
+    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale,INTERRUPT_COST);
   }
   _timer.shouldRiseCount = _timer.outOfBounds;
   

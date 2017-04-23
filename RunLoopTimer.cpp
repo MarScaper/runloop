@@ -54,10 +54,21 @@ void RunLoopTimer::setMicroDelay(unsigned long delay)
   this->setDelay(delay/1000);
 }
 
+#if RUN_LOOP_FULL || RUN_LOOP_DELEGATE
 void RunLoopTimer::setTimerDelegate(RunLoopTimerDelegate *delegate)
 {
   _timerDelegate = delegate;
+  
+  if( _timerDelegate )
+  {
+    timerMode = RunLoopTimerModeDelegate;
+  }
+  else
+  {
+    timerMode = RunLoopTimerModeInheritance;
+  }
 }
+#endif
 
 void RunLoopTimer::loop()
 {
@@ -69,7 +80,6 @@ void RunLoopTimer::loop()
       // Reset the timer
       _startTime = millis();
       
-      
       this->railSwitchingFire();
     }
   }
@@ -77,6 +87,10 @@ void RunLoopTimer::loop()
 
 void RunLoopTimer::railSwitchingFire()
 {
+  
+#if 0
+#if RUN_LOOP_FULL
+  
   if( _fireCallback )
   {
     // Send the work to callback
@@ -93,16 +107,101 @@ void RunLoopTimer::railSwitchingFire()
     this->fire();
   }
   
-  // Execute sub objects if availables
-  RunLoopObject::loop();
+#else
+  
+#if RUN_LOOP_CALLBACK
+  
+  if( _fireCallback )
+  {
+    // Send the work to callback
+    _fireCallback(this);
+  }
+#if RUN_LOOP_INHERITANCE
+  else
+  {
+    // Do the work within the class or subclass
+    this->fire();
+  }
+#endif
+  
+#endif
+  
+#if RUN_LOOP_DELEGATE
+  
+  if( _timerDelegate )
+  {
+    // Send the work to delegate
+    _timerDelegate->fire(this);
+  }
+#if RUN_LOOP_INHERITANCE
+  else
+  {
+    // Do the work within the class or subclass
+    this->fire();
+  }
+#endif
+  
+#endif
+  
+#if RUN_LOOP_INHERITANCE && !RUN_LOOP_CALLBACK && !RUN_LOOP_DELEGATE
+  
+  // Do the work within the class or subclass
+  this->fire();
+  
+#endif
+  
+#endif
+  
+#endif
+  
+  switch (timerMode)
+  {
+#if RUN_LOOP_FULL || RUN_LOOP_CALLBACK
+    case RunLoopTimerModeCallback:
+      // Send the work to callback
+      _fireCallback(this);
+      break;
+#endif
+      
+#if RUN_LOOP_FULL || RUN_LOOP_DELEGATE
+    case RunLoopTimerModeDelegate:
+      // Send the work to delegate
+      _timerDelegate->fire(this);
+      break;
+#endif
+      
+#if RUN_LOOP_FULL || RUN_LOOP_INHERITANCE
+    default:
+      // Do the work within the class or subclass
+      this->fire();
+      break;
+#else
+    default:
+      break;
+#endif
+      
+  }
+  
+  // Speed optimization (2.6us)
+  if( _runLoopObjectCount )
+  {
+    // Execute sub objects if availables
+    RunLoopObject::loop();
+  }
 }
 
+#if RUN_LOOP_FULL || RUN_LOOP_CALLBACK
 void RunLoopTimer::attachInterrupt(void (*isr)(RunLoopTimer*))
 {
   _fireCallback = isr;
+  
+  timerMode = RunLoopTimerModeCallback;
 }
 
 void RunLoopTimer::detachInterrupt()
 {
   _fireCallback = NULL;
+  
+  timerMode = RunLoopTimerModeInheritance;
 }
+#endif

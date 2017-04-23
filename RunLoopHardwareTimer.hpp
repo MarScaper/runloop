@@ -39,7 +39,7 @@ struct TimerStruct
 
 /*!
  * The class is a virtual superclass to manage hardware timers of the arduino.
- * Its purpose is to regroup all the common functions of hardware timers like 
+ * Its purpose is to regroup all the common functions of hardware timers like
  * managing the hardware loop, calculate clock select bits, counter reset or
  * prescale.
  *
@@ -59,8 +59,10 @@ public:
 #pragma mark -
 #pragma mark Virtual methods for subclass overwrite
   
+#if RUN_LOOP_FULL || RUN_LOOP_INHERITANCE
   /*! Method executed each time delay is elapsed if delegate is not set. Subclasses need to overwrite this method. */
   virtual void fire() = 0;
+#endif
   
   /*! Set the timer delay in milli seconds (us x 1000) for compatibility with software timers. */
   virtual void setDelay(unsigned long delay) = 0;
@@ -88,7 +90,8 @@ protected:
   /*! Delay expressed in micro seconds. */
   unsigned long _microDelay=0;
   
-  bool clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale);
+  /*! Calculate timer parameters. */
+  bool clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, float interruptCoast=0);
   
 private:
   

@@ -22,7 +22,9 @@
 
 // Model
 #include "RunLoopObject.hpp"
+#include "RunLoopConfig.hpp"
 
+#if RUN_LOOP_FULL || RUN_LOOP_DELEGATE
 
 class RunLoopTimer;
 
@@ -39,6 +41,16 @@ public:
   /*! This method is called when timer requests an interrupt. */
   virtual void fire(RunLoopTimer *sender) = 0;
   
+};
+
+#endif
+
+enum RunLoopTimerMode
+{
+  RunLoopTimerModeNone,
+  RunLoopTimerModeCallback,
+  RunLoopTimerModeDelegate,
+  RunLoopTimerModeInheritance
 };
 
 /*!
@@ -65,9 +77,12 @@ public:
   
 #pragma mark -
 #pragma mark Virtual methods for subclass overwrite
-  
-  /*! Method executed each time delay is elapsed. User should overwrite this method when subclassing RunLoopTimer. */
-  virtual void fire() {};
+
+#if RUN_LOOP_FULL || RUN_LOOP_INHERITANCE
+  /*! Method executed each time delay is elapsed. User should 
+   *  overwrite this method when subclassing RunLoopTimer. */
+  virtual void fire() = 0;
+#endif
 
   /*! Set the timer delay in milliseconds. */
   virtual void setDelay(unsigned long delay);
@@ -80,22 +95,25 @@ public:
   
 #pragma mark -
 #pragma mark Usuals
-  
+
+#if RUN_LOOP_FULL || RUN_LOOP_DELEGATE
   /*! Set delegate for asynchronous feedback. If not set, fire() method is call. */
   void setTimerDelegate(RunLoopTimerDelegate *delegate);
   
   /*! Get delegate for asynchronous feedback. */
   inline RunLoopTimerDelegate *timerDelegate() {return _timerDelegate;};
-  
+#endif
+
   /*! Get last starting time of timer.*/
   inline unsigned long startTime() {return _startTime;};
-  
+
+#if RUN_LOOP_FULL || RUN_LOOP_CALLBACK
   /*! Set call back function for C backward compatibility if needed. */
   void attachInterrupt(void (*fire)(RunLoopTimer*));
   
   /*! Unset call back function for C backward compatibility if needed. */
   void detachInterrupt();
-  
+#endif
   
 protected:
   
@@ -104,17 +122,24 @@ protected:
   
   /*! Start time of the last fire. */
   unsigned long _startTime = 0;
-  
+
+#if RUN_LOOP_FULL || RUN_LOOP_CALLBACK
   /*! Call back function for C backward compatibility if needed. */
   void (*_fireCallback)(RunLoopTimer*) = NULL;
-  
+#endif
+
   /*! Fire according to callback, delegate, or inheritance. */
   void railSwitchingFire();
   
 private:
-  
+
+#if RUN_LOOP_FULL || RUN_LOOP_DELEGATE
   /*! Delegate for feedback. */
   RunLoopTimerDelegate *_timerDelegate = NULL;
+#endif
+  
+  RunLoopTimerMode timerMode = RunLoopTimerModeInheritance;
+
 };
 
 #endif

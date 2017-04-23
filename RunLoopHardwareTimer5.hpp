@@ -51,9 +51,11 @@ public:
   
 #pragma mark -
 #pragma mark Usuals
-  
+
+#if RUN_LOOP_FULL || RUN_LOOP_INHERITANCE
   /*! Method executed each time delay is elapsed if delegate is not set. Subclasses need to overwrite this method. */
   virtual void fire() {};
+#endif
   
   /*! Set delay in milliseconds. */
   void setDelay(unsigned long delay);

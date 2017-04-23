@@ -166,7 +166,7 @@ bool RunLoopObject::areAncestorsIdle()
 {
   bool idle = false;
   
-  if( this->ancestor() )
+  if( _ancestor )
   {
     RunLoopObject *ancestor = this->ancestor();
     while( ancestor )

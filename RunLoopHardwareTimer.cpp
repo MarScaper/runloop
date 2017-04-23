@@ -51,12 +51,22 @@ RunLoopHardwareTimer::~RunLoopHardwareTimer()
 {
 }
 
-bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale)
+bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, float interruptCost)
 {
   bool isOutOfBounds = false;
   
   unsigned long cpuSpeed = F_CPU/1000000;
   unsigned long cycles = cpuSpeed * delay;
+  
+  int interruptCostCycles = round(interruptCost*cpuSpeed);
+  if( cycles > interruptCostCycles )
+  {
+    cycles -= interruptCostCycles;
+  }
+  else
+  {
+    cycles = 0;
+  }
   
   if( resolution == 256 )
   {
@@ -142,7 +152,7 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
   if( !isOutOfBounds )
   {
     // Set counter to the needed value
-    *counterReset = resolution-1-cpuSpeed*delay / *prescale;
+    *counterReset = resolution-1-cycles / *prescale;
   }
   else
   {
@@ -158,9 +168,6 @@ void RunLoopHardwareTimer::hardwareLoop()
   // Take care to ancestors state if exist cause we do not deal with "official run loop"
   if( !this->areAncestorsIdle() )
   {
-    // Get delegate if exists
-    RunLoopTimerDelegate *timerDelegate = this->timerDelegate();
-    
     if( !_timer.outOfBounds )
     {
       // Fire according to callback, delegate, or inheritance 

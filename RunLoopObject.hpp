@@ -79,13 +79,13 @@ protected:
   /*! Go back in the hierarchy of ancestors to check that none is idle. */
   bool areAncestorsIdle();
   
-private:
-  
   /*! RunLoopObject childs count. */
   unsigned short _runLoopObjectCount = 0;
   
   /*! RunLoopObject childs array. */
   RunLoopObject* *_runLoopObjectArray = NULL;
+  
+private:
   
   /*! Hierarchical ancestor. */
   RunLoopObject *_ancestor = NULL;
