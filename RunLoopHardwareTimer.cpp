@@ -41,10 +41,10 @@
 RunLoopHardwareTimer::RunLoopHardwareTimer()
 {
   // init timer data
-  _timer.clockSelectBits = 0;
-  _timer.counterReset    = 0;
-  _timer.outOfBounds     = 0;
-  _timer.shouldRiseCount = 0;
+  _timerPreset.clockSelectBits = 0;
+  _timerPreset.counterReset    = 0;
+  _timerPreset.outOfBounds     = 0;
+  _timerPreset.shouldRiseCount = 0;
 }
 
 RunLoopHardwareTimer::~RunLoopHardwareTimer()
@@ -168,22 +168,22 @@ void RunLoopHardwareTimer::hardwareLoop()
   // Take care to ancestors state if exist cause we do not deal with "official run loop"
   if( !this->areAncestorsIdle() )
   {
-    if( !_timer.outOfBounds )
+    if( !_timerPreset.outOfBounds )
     {
       // Fire according to callback, delegate, or inheritance 
       this->railSwitchingFire();
     }
     else
     {
-      _timer.shouldRiseCount--;
+      _timerPreset.shouldRiseCount--;
       
-      if( _timer.shouldRiseCount == 0 )
+      if( _timerPreset.shouldRiseCount == 0 )
       {
         // Fire according to callback, delegate, or inheritance 
         this->railSwitchingFire();
         
         // Reset rise count
-        _timer.shouldRiseCount = _timer.outOfBounds;
+        _timerPreset.shouldRiseCount = _timerPreset.outOfBounds;
       }
     }
   }

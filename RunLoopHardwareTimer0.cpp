@@ -74,3 +74,15 @@ void RunLoopHardwareTimer0::setIdle(bool state)
 {
   this->RunLoopTimer::setIdle(state);
 }
+
+TimerPreset RunLoopHardwareTimer0::timerPresetForMicroDelay(unsigned long delay)
+{
+  TimerPreset timer;
+  
+  timer.clockSelectBits = 0;
+  timer.counterReset    = 0;
+  timer.outOfBounds     = 0;
+  timer.shouldRiseCount = 0;
+  
+  return timer;
+}

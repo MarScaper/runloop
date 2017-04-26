@@ -27,7 +27,7 @@
 /*
  *  Global structure used internally by timers to store parameters.
  */
-struct TimerStruct
+struct TimerPreset
 {
   unsigned char  clockSelectBits;
   unsigned short counterReset;
@@ -80,12 +80,21 @@ public:
   void hardwareLoop();
   
   /*! Global structure used internally by timers to store parameters. */
-  inline TimerStruct *timer() {return &_timer;};
+  inline TimerPreset *timerPreset() {return &_timerPreset;};
+  
+  /*! Global structure used internally by timers to store parameters. */
+  inline TimerPreset timerPresetForDelay(unsigned long delay) { return this->timerPresetForMicroDelay(delay*1000); };
+  
+  /*! Global structure used internally by timers to store parameters. */
+  inline virtual TimerPreset timerPresetForMicroDelay(unsigned long delay) = 0;
+  
+  /*! Global structure used internally by timers to store parameters. */
+  inline virtual void setTimerPreset(TimerPreset *timerPreset) = 0;
   
 protected:
   
   /*! Global structure used internally by timers to store parameters. */
-  TimerStruct _timer;
+  TimerPreset _timerPreset;
   
   /*! Delay expressed in micro seconds. */
   unsigned long _microDelay=0;

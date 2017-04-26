@@ -62,6 +62,11 @@ public:
   
   /*! Start or stop the loop. */
   void setIdle(bool state);
+  
+  /*! Global structure used internally by timers to store parameters. */
+  inline TimerPreset timerPresetForMicroDelay(unsigned long delay);
+  
+  inline void setTimerPreset(TimerPreset *timerPreset);
 };
 
 #endif

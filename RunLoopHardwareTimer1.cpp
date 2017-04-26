@@ -40,30 +40,30 @@
 
 //  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
+static TimerPreset          *__timerPreset   = NULL;
 
-ISR(TIMER1_OVF_vect)
+/*ISR(TIMER1_OVF_vect)
 {
-  // Get timer data for counter reset value
-  TimerStruct *timer = __timerInstance->timer();
-  
   // Reset timer
-  TCNT = timer->counterReset;
+  TCNT = __timerPreset->counterReset;
   TIFR = 0x00;
   
   // Do the job
   __timerInstance->hardwareLoop();
-}
+}*/
 
 RunLoopHardwareTimer1::RunLoopHardwareTimer1()
 {
-  // Set local static instance for acces in ISR
+  // Set local static instances for acces in ISR
   __timerInstance = this;
+  __timerPreset   = &_timerPreset;
 }
 
 RunLoopHardwareTimer1::~RunLoopHardwareTimer1()
 {
   TCCRB = PRESCALE_0;
   __timerInstance = NULL;
+  __timerPreset   = NULL;
 }
 
 void RunLoopHardwareTimer1::setDelay(unsigned long delay)
@@ -73,37 +73,26 @@ void RunLoopHardwareTimer1::setDelay(unsigned long delay)
 
 void RunLoopHardwareTimer1::setMicroDelay(unsigned long delay)
 {
+  return;
+  
   _microDelay = delay;
   
-  // Calculate prescale, clock select bits and counter reset according to delay and timer resolution
-  _timer.outOfBounds = 0;
-  unsigned short prescale;
-  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale,INTERRUPT_COST) )
-  {
-    _timer.outOfBounds=1000;
-    delay /= 1000;
-    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(delay,TIMER_RESOLUTION,&_timer.clockSelectBits,&_timer.counterReset,&prescale,INTERRUPT_COST);
-  }
-  _timer.shouldRiseCount = _timer.outOfBounds;
+  _timerPreset = this->timerPresetForMicroDelay(_microDelay);
   
   // Initialize timer
   noInterrupts();              // disable all interrupts
   TCCRA = 0;
   TCCRB = PRESCALE_0;          // Disable timer
-  TCNT  = _timer.counterReset; // preload timer
   TIMSK = 1;                   // enable timer overflow interrupt
   interrupts();
   
-  if( !this->isIdle() )
-  {
-    // Fire timer immediately
-    TCNT  = TIMER_RESOLUTION-1;
-    TCCRB = _timer.clockSelectBits;
-  }
+  this->setTimerPreset(&_timerPreset);
 }
 
 void RunLoopHardwareTimer1::setIdle(bool state)
 {
+  return;
+  
   if( state != this->isIdle() )
   {
     _isIdle = state;
@@ -114,8 +103,43 @@ void RunLoopHardwareTimer1::setIdle(bool state)
     }
     else if( _microDelay )
     {
-      TCNT  = TIMER_RESOLUTION-1;
-      TCCRB = _timer.clockSelectBits;
+      // Launch timer
+      TCCRB = __timerPreset->clockSelectBits;
+      TCNT  = __timerPreset->counterReset;
+      
+      __timerInstance->hardwareLoop();
     }
+  }
+}
+
+TimerPreset RunLoopHardwareTimer1::timerPresetForMicroDelay(unsigned long microDelay)
+{
+  TimerPreset timer;
+  
+  // Calculate prescale, clock select bits and counter reset according to delay and timer resolution
+  timer.outOfBounds = 0;
+  unsigned short prescale;
+  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,TIMER_RESOLUTION,&timer.clockSelectBits,&timer.counterReset,&prescale,INTERRUPT_COST) )
+  {
+    timer.outOfBounds=1000;
+    microDelay /= 1000;
+    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,TIMER_RESOLUTION,&timer.clockSelectBits,&timer.counterReset,&prescale,INTERRUPT_COST);
+  }
+  timer.shouldRiseCount = timer.outOfBounds;
+  
+  return timer;
+}
+
+void RunLoopHardwareTimer1::setTimerPreset(TimerPreset *timerPreset)
+{
+  __timerPreset = timerPreset;
+  
+  if( !_isIdle )
+  {
+    // Launch timer
+    TCCRA = 0;
+    TCCRB = PRESCALE_0;
+    TCCRB = __timerPreset->clockSelectBits;
+    TCNT  = __timerPreset->counterReset;
   }
 }
