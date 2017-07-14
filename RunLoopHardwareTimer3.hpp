@@ -69,7 +69,7 @@ public:
   /*! Global structure used internally by timers to store parameters. */
   inline TimerPreset timerPresetForMicroDelay(unsigned long delay);
   
-  void setTimerPreset(TimerPreset *timer) {};
+  void setTimerPreset(TimerPreset *timer);
 };
 #endif
 

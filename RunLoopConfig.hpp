@@ -20,13 +20,13 @@
 #ifndef RunLoopConfig_hpp
 #define RunLoopConfig_hpp
 
-#define RUN_LOOP_FULL        0
+#define RUN_LOOP_FULL        1
 
 #if !RUN_LOOP_FULL 
 
 // Set to 1 for the methods you want to use in the library
-#define RUN_LOOP_CALLBACK    0
-#define RUN_LOOP_INHERITANCE 0
+#define RUN_LOOP_CALLBACK    1
+#define RUN_LOOP_INHERITANCE 1
 #define RUN_LOOP_DELEGATE    1
 
 #endif

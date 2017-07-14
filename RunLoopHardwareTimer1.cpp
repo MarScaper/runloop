@@ -42,7 +42,7 @@
 static RunLoopHardwareTimer *__timerInstance = NULL;
 static TimerPreset          *__timerPreset   = NULL;
 
-/*ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect)
 {
   // Reset timer
   TCNT = __timerPreset->counterReset;
@@ -50,7 +50,7 @@ static TimerPreset          *__timerPreset   = NULL;
   
   // Do the job
   __timerInstance->hardwareLoop();
-}*/
+}
 
 RunLoopHardwareTimer1::RunLoopHardwareTimer1()
 {
@@ -73,8 +73,6 @@ void RunLoopHardwareTimer1::setDelay(unsigned long delay)
 
 void RunLoopHardwareTimer1::setMicroDelay(unsigned long delay)
 {
-  return;
-  
   _microDelay = delay;
   
   _timerPreset = this->timerPresetForMicroDelay(_microDelay);
@@ -91,8 +89,6 @@ void RunLoopHardwareTimer1::setMicroDelay(unsigned long delay)
 
 void RunLoopHardwareTimer1::setIdle(bool state)
 {
-  return;
-  
   if( state != this->isIdle() )
   {
     _isIdle = state;
@@ -132,14 +128,18 @@ TimerPreset RunLoopHardwareTimer1::timerPresetForMicroDelay(unsigned long microD
 
 void RunLoopHardwareTimer1::setTimerPreset(TimerPreset *timerPreset)
 {
-  __timerPreset = timerPreset;
+  // Copy timer content to local preset
+  _timerPreset = *timerPreset;
+  
+  // Set global preset address
+  __timerPreset = &_timerPreset;
   
   if( !_isIdle )
   {
     // Launch timer
     TCCRA = 0;
-    TCCRB = PRESCALE_0;
     TCCRB = __timerPreset->clockSelectBits;
     TCNT  = __timerPreset->counterReset;
+    TIMSK = 1;
   }
 }
