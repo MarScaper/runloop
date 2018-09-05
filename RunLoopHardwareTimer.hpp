@@ -31,6 +31,9 @@ struct TimerPreset
 {
   unsigned char  clockSelectBits;
   unsigned short counterReset;
+  unsigned short prescale;
+  unsigned long  cycles;
+  
   unsigned long  outOfBounds;
   unsigned long  shouldRiseCount;
 };
@@ -100,7 +103,7 @@ protected:
   unsigned long _microDelay=0;
   
   /*! Calculate timer parameters. */
-  bool clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, float interruptCoast=0);
+  bool clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, unsigned long *cycles);
   
 private:
   

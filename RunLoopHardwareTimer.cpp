@@ -51,21 +51,25 @@ RunLoopHardwareTimer::~RunLoopHardwareTimer()
 {
 }
 
-bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, float interruptCost)
+bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(unsigned long delay, unsigned long resolution, unsigned char *clockSelectBits, unsigned short *counterReset, unsigned short *prescale, unsigned long *cycles)
 {
   bool isOutOfBounds = false;
   
   unsigned long cpuSpeed = F_CPU/1000000;
-  unsigned long cycles = cpuSpeed * delay;
   
-  int interruptCostCycles = round(interruptCost*cpuSpeed);
-  if( cycles > interruptCostCycles )
+  *cycles = cpuSpeed * delay;
+  
+  // For perfect precision, we must keep in mind the irq overhead of the arduino library.
+  // A very good explanation on Bill Grundmann’s Blog:
+  // https://billgrundmann.wordpress.com/2009/03/02/the-overhead-of-arduino-interrupts/
+  int irq_overhead = 55; // cycles
+  if( *cycles > irq_overhead )
   {
-    cycles -= interruptCostCycles;
+    *cycles -= irq_overhead;
   }
   else
   {
-    cycles = 0;
+    *cycles = 1;
   }
   
   if( resolution == 256 )
@@ -75,32 +79,32 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
     //
     
     *prescale = PRESCALE_8_0;
-    if(cycles < resolution)
+    if(*cycles < resolution)
     {
       *clockSelectBits = PRESCALE_8_1;
       *prescale = 1;
     }
-    else if(cycles < resolution*8)
+    else if(*cycles < resolution*8)
     {
       *clockSelectBits = PRESCALE_8_8;
       *prescale = 8;
     }
-    else if(cycles < resolution*32)
+    else if(*cycles < resolution*32)
     {
       *clockSelectBits = PRESCALE_8_32;
       *prescale = 32;
     }
-    else if(cycles < resolution*64)
+    else if(*cycles < resolution*64)
     {
       *clockSelectBits = PRESCALE_8_64;
       *prescale = 64;
     }
-    else if(cycles < resolution*128)
+    else if(*cycles < resolution*128)
     {
       *clockSelectBits = PRESCALE_8_128;
       *prescale = 128;
     }
-    else if(cycles < resolution*256)
+    else if(*cycles < resolution*256)
     {
       *clockSelectBits = PRESCALE_8_256;
       *prescale = 256;
@@ -120,22 +124,22 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
     //
     
     *prescale = PRESCALE_16_0;
-    if(cycles < resolution)
+    if(*cycles < resolution)
     {
       *clockSelectBits = PRESCALE_16_1;
       *prescale = 1;
     }
-    else if(cycles < resolution*8)
+    else if(*cycles < resolution*8)
     {
       *clockSelectBits = PRESCALE_16_8;
       *prescale = 8;
     }
-    else if(cycles < resolution*64)
+    else if(*cycles < resolution*64)
     {
       *clockSelectBits = PRESCALE_16_64;
       *prescale = 64;
     }
-    else if(cycles < resolution*256)
+    else if(*cycles < resolution*256)
     {
       *clockSelectBits = PRESCALE_16_256;
       *prescale = 256;
@@ -152,7 +156,7 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
   if( !isOutOfBounds )
   {
     // Set counter to the needed value
-    *counterReset = resolution-1-cycles / *prescale;
+    *counterReset = resolution-1-*cycles / *prescale;
   }
   else
   {
@@ -160,17 +164,25 @@ bool RunLoopHardwareTimer::clockSelectBitsCounterResetAndPrescaleForDelayAndReso
     *counterReset = 0;
   }
   
+  *cycles += irq_overhead;
+  
   return isOutOfBounds;
 }
 
 void RunLoopHardwareTimer::hardwareLoop()
 {
+  bool ancestorsIdle = false;
+  if( _ancestor )
+  {
+    ancestorsIdle = this->areAncestorsIdle();
+  }
+  
   // Take care to ancestors state if exist cause we do not deal with "official run loop"
-  if( !this->areAncestorsIdle() )
+  if( !ancestorsIdle )
   {
     if( !_timerPreset.outOfBounds )
     {
-      // Fire according to callback, delegate, or inheritance 
+      // Fire according to callback, delegate, or inheritance
       this->railSwitchingFire();
     }
     else
@@ -179,7 +191,7 @@ void RunLoopHardwareTimer::hardwareLoop()
       
       if( _timerPreset.shouldRiseCount == 0 )
       {
-        // Fire according to callback, delegate, or inheritance 
+        // Fire according to callback, delegate, or inheritance
         this->railSwitchingFire();
         
         // Reset rise count

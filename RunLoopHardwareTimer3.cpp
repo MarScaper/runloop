@@ -24,6 +24,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "RunLoopConfig.hpp"
 #include "RunLoopHardwareTimer3.hpp"
 
 // Timer resolution
@@ -39,32 +40,37 @@
 #define TCCRB TCCR3B
 #define TCNT  TCNT3
 #define TIMSK TIMSK3
-#define INTERRUPT_COST 3.2946428571
 
 //  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
 static TimerPreset          *__timerPreset   = NULL;
 
+#if ENABLE_RUNLOOP_TIMER_3_INTERRUPT
 ISR(TIMER3_OVF_vect)
 {
   // Reset timer
   TCNT = __timerPreset->counterReset;
-  TIFR = 0x00;
   
   // Do the job
   __timerInstance->hardwareLoop();
 }
+#endif
 
 RunLoopHardwareTimer3::RunLoopHardwareTimer3()
 {
   // Set local static instances for acces in ISR
   __timerInstance = this;
   __timerPreset   = &_timerPreset;
+
+  TIMSK  = 0;
+  TCCRA = TCCRB = PRESCALE_0;
 }
 
 RunLoopHardwareTimer3::~RunLoopHardwareTimer3()
 {
-  TCCRB = PRESCALE_0;
+  TIMSK  = 0;
+  TCCRA = TCCRB = PRESCALE_0;
+
   __timerInstance = NULL;
   __timerPreset   = NULL;
 }
@@ -81,18 +87,13 @@ void RunLoopHardwareTimer3::setMicroDelay(unsigned long delay)
   _timerPreset = this->timerPresetForMicroDelay(_microDelay);
   
   // Initialize timer
-  noInterrupts();              // disable all interrupts
-  TCCRA = 0;
   TCCRB = PRESCALE_0;          // Disable timer
-  TIMSK = 1;                   // enable timer overflow interrupt
-  interrupts();
-  
   this->setTimerPreset(&_timerPreset);
 }
 
 void RunLoopHardwareTimer3::setIdle(bool state)
 {
-  if( state != this->isIdle() )
+  if( state != _isIdle )
   {
     _isIdle = state;
     
@@ -103,10 +104,9 @@ void RunLoopHardwareTimer3::setIdle(bool state)
     else if( _microDelay )
     {
       // Launch timer
-      TCCRB = __timerPreset->clockSelectBits;
-      TCNT  = __timerPreset->counterReset;
-      
-      __timerInstance->hardwareLoop();
+      TCCRB  = 1<<WGM12;
+      TCCRB |= __timerPreset->clockSelectBits;
+      TCNT   = __timerPreset->counterReset;
     }
   }
 }
@@ -117,12 +117,22 @@ TimerPreset RunLoopHardwareTimer3::timerPresetForMicroDelay(unsigned long microD
   
   // Calculate prescale, clock select bits and counter reset according to delay and timer resolution
   timer.outOfBounds = 0;
-  unsigned short prescale;
-  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,TIMER_RESOLUTION,&timer.clockSelectBits,&timer.counterReset,&prescale,INTERRUPT_COST) )
+  if( this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,
+                                                                        TIMER_RESOLUTION,
+                                                                        &timer.clockSelectBits,
+                                                                        &timer.counterReset,
+                                                                        &timer.prescale,
+                                                                        &timer.cycles) )
   {
+    // Improve timer dynamic by 1000x
     timer.outOfBounds=1000;
     microDelay /= 1000;
-    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,TIMER_RESOLUTION,&timer.clockSelectBits,&timer.counterReset,&prescale,INTERRUPT_COST);
+    this->clockSelectBitsCounterResetAndPrescaleForDelayAndResolution(microDelay,
+                                                                      TIMER_RESOLUTION,
+                                                                      &timer.clockSelectBits,
+                                                                      &timer.counterReset,
+                                                                      &timer.prescale,
+                                                                      &timer.cycles);
   }
   timer.shouldRiseCount = timer.outOfBounds;
   
@@ -140,10 +150,15 @@ void RunLoopHardwareTimer3::setTimerPreset(TimerPreset *timerPreset)
   if( !_isIdle )
   {
     // Launch timer
-    TCCRA = 0;
-    TCCRB = __timerPreset->clockSelectBits;
-    TCNT  = __timerPreset->counterReset;
-    TIMSK = 1;
+    TIMSK  = 0;
+    TCCRB  = __timerPreset->clockSelectBits;
+    TIMSK  = 1;
   }
 }
+
+TimerPreset* RunLoopHardwareTimer3::timerPreset()
+{
+  return __timerPreset;
+}
+
 #endif

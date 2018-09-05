@@ -85,10 +85,10 @@ protected:
   /*! RunLoopObject childs array. */
   RunLoopObject* *_runLoopObjectArray = NULL;
   
-private:
-  
   /*! Hierarchical ancestor. */
   RunLoopObject *_ancestor = NULL;
+    
+private:
   
   /*! Set the ancestor. This method is autmatically called internally by addToRunLoop(...). */
   void setAncestor(RunLoopObject *ancestor);

@@ -21,6 +21,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "RunLoopConfig.hpp"
 #include "RunLoopHardwareTimer0.hpp"
 
 // Timer resolution
@@ -36,6 +37,7 @@
 //  Global pointer needed to acces instance in ISR
 static RunLoopHardwareTimer *__timerInstance = NULL;
 
+#if ENABLE_RUNLOOP_TIMER_0_INTERRUPT
 // Interrupt is called once a millisecond,
 SIGNAL(TIMER0_COMPA_vect)
 {
@@ -43,6 +45,7 @@ SIGNAL(TIMER0_COMPA_vect)
   // just need to use the standard loop.
   __timerInstance->RunLoopTimer::loop();
 }
+#endif
 
 RunLoopHardwareTimer0::RunLoopHardwareTimer0()
 {
@@ -61,7 +64,7 @@ void RunLoopHardwareTimer0::setDelay(unsigned long delay)
   
   // Timer0 is already used for millis() - we'll just interrupt somewhere
   // in the middle and call the "Compare A" function below
-  OCRA = 0xAF;
+  OCRA = 0x7F;
   TIMSK |= _BV(OCIE0A);
 }
 
@@ -73,6 +76,17 @@ void RunLoopHardwareTimer0::setMicroDelay(unsigned long delay)
 void RunLoopHardwareTimer0::setIdle(bool state)
 {
   this->RunLoopTimer::setIdle(state);
+  
+  if( _isIdle == true)
+  {
+    // Disable interruption
+    TIMSK &= ~(_BV(OCIE0A));
+  }
+  else
+  {
+    // Enable interruption
+    TIMSK |= _BV(OCIE0A);
+  }
 }
 
 TimerPreset RunLoopHardwareTimer0::timerPresetForMicroDelay(unsigned long delay)

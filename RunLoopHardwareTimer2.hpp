@@ -67,6 +67,8 @@ public:
   inline TimerPreset timerPresetForMicroDelay(unsigned long delay);
   
   void setTimerPreset(TimerPreset *timer);
+
+  TimerPreset* timerPreset();
 };
 
 #endif

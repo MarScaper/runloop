@@ -22,13 +22,19 @@
 
 #define RUN_LOOP_FULL        1
 
-#if !RUN_LOOP_FULL 
-
+#if !RUN_LOOP_FULL
 // Set to 1 for the methods you want to use in the library
 #define RUN_LOOP_CALLBACK    1
 #define RUN_LOOP_INHERITANCE 1
 #define RUN_LOOP_DELEGATE    1
-
 #endif
+
+// Allow to disable ISR functions for compatibility with other libraries
+#define ENABLE_RUNLOOP_TIMER_0_INTERRUPT 1
+#define ENABLE_RUNLOOP_TIMER_1_INTERRUPT 1
+#define ENABLE_RUNLOOP_TIMER_2_INTERRUPT 1
+#define ENABLE_RUNLOOP_TIMER_3_INTERRUPT 1
+#define ENABLE_RUNLOOP_TIMER_4_INTERRUPT 1
+#define ENABLE_RUNLOOP_TIMER_5_INTERRUPT 1
 
 #endif
